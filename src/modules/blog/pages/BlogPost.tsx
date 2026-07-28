@@ -1,7 +1,7 @@
-import React from 'react';
+
 import { useParams, Link } from 'react-router-dom';
-import { Search, Share2, Link2, ChevronLeft } from 'lucide-react';
-import { Header } from '../../../components/Header';
+import { Search, Link2 } from 'lucide-react';
+import { Header } from '@/components/Header';
 import { FEATURED_POST, BLOG_POSTS } from '../constants/blogPosts';
 
 export const BlogPost = () => {

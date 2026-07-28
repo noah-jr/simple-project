@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useParams, Link } from 'react-router-dom';
 import { ARTICLES_BY_CATEGORY } from '../constants/articles';
 import { Header } from '../../../components/Header';

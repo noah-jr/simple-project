@@ -1,5 +1,4 @@
-import React from 'react';
-import { Search } from 'lucide-react';
+
 import { motion } from 'framer-motion';
 import { CategorySelect } from './CategorySelect';
 import { SearchInput } from './SearchInput';

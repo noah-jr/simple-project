@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronDown, Phone, LogIn } from 'lucide-react';
+
+import { Phone, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Header = () => {

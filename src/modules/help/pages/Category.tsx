@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { useParams, Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+
 import { HELP_CATEGORIES } from '../constants/categories';
 import { ARTICLES_BY_CATEGORY } from '../constants/articles';
 import { Breadcrumb } from '../components/Breadcrumb';
