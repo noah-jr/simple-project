@@ -22,6 +22,9 @@ export interface BlogPost {
   published_at: string;
   is_featured: boolean;
   views: number;
+  meta_title?: string;
+  meta_description?: string;
+  gallery?: { url: string; alt?: string; type?: string }[] | string[];
 }
 
 export const useBlogCategories = () => {
