@@ -1,8 +1,8 @@
 
 import { useParams, Link } from 'react-router-dom';
+import * as Icons from 'lucide-react';
 
-import { HELP_CATEGORIES } from '../constants/categories';
-import { ARTICLES_BY_CATEGORY } from '../constants/articles';
+import { useHelpCategories, useHelpArticles } from '../queries/useHelpQueries';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { ArticleList } from '../components/ArticleList';
 import { Header } from '../../../components/Header';
@@ -10,10 +10,12 @@ import { CategorySelect } from '../components/CategorySelect';
 import { SearchInput } from '../components/SearchInput';
 
 export const Category = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // id is actually the slug
   
-  const category = HELP_CATEGORIES.find(c => c.id === id);
-  const articles = id ? ARTICLES_BY_CATEGORY[id] || [] : [];
+  const { data: categories = [] } = useHelpCategories();
+  const category = categories.find(c => c.slug === id);
+  
+  const { data: articles = [], isLoading } = useHelpArticles(id);
 
   if (!category) {
     return (
@@ -29,14 +31,14 @@ export const Category = () => {
     );
   }
 
-  const Icon = category.icon;
+  const IconComponent = category.icon ? (Icons as any)[category.icon] || Icons.Folder : Icons.Folder;
 
   return (
     <div className="min-h-screen bg-[#f5f6fb] font-sans flex flex-col">
       <Header />
       
       {/* Hero & Search Section */}
-      <section className="w-full bg-[#673de6] py-16 px-4 flex justify-center">
+      <section className="w-full bg-[#5025d1] py-16 px-4 flex justify-center">
         <div className="w-full max-w-[960px] flex gap-2 items-center justify-center flex-col md:flex-row">
           <div className="relative flex-1 max-w-[642px] h-10 w-full">
             <SearchInput />
@@ -55,7 +57,7 @@ export const Category = () => {
         {/* Category Header */}
         <div className="flex flex-col md:flex-row md:items-start md:space-x-6 mb-8 mt-6">
           <div className="hidden md:flex flex-shrink-0">
-            <Icon className="w-16 h-16 text-[#5025d1] stroke-[1.5]" />
+            <IconComponent className="w-16 h-16 text-[#5025d1] stroke-[1.5]" />
           </div>
           <div>
             <h1 className="text-4xl font-bold text-black mb-2">{category.title}</h1>
@@ -68,7 +70,11 @@ export const Category = () => {
         <div className="bg-white border border-[#e2dbfc] rounded-lg p-3 mb-5">
           <h2 className="text-[22px] font-bold text-black px-3 pt-2 mb-3">Informações Gerais</h2>
           <div className="h-[1px] bg-[#e2dbfc] mx-3 mb-3"></div>
-          <ArticleList articles={articles} />
+          {isLoading ? (
+            <div className="p-4 text-center text-gray-500">A carregar artigos...</div>
+          ) : (
+            <ArticleList articles={articles} />
+          )}
         </div>
       </main>
     </div>

@@ -1,16 +1,18 @@
 import React from 'react';
-import { type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface CategoryCardProps {
   id: string;
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: string | any;
   count: number;
 }
 
-export const CategoryCard: React.FC<CategoryCardProps> = ({ id, title, description, icon: Icon, count }) => {
+export const CategoryCard: React.FC<CategoryCardProps> = ({ id, title, description, icon, count }) => {
+  const IconComponent = typeof icon === 'string' ? (Icons as any)[icon] || Icons.Folder : icon;
+  
   return (
     <Link 
       to={`/help/category/${id}`}
@@ -18,7 +20,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ id, title, descripti
     >
       {/* Icon Container */}
       <div className="pt-10 pb-2 flex justify-center items-center h-16">
-        <Icon className="w-12 h-12 text-[#5025d1] stroke-[1.5]" />
+        <IconComponent className="w-12 h-12 text-[#5025d1] stroke-[1.5]" />
       </div>
       
       {/* Content Container */}

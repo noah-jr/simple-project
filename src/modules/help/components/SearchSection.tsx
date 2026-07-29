@@ -5,7 +5,7 @@ import { SearchInput } from './SearchInput';
 
 export const SearchSection = () => {
   return (
-    <section className="w-full bg-[#673de6] text-white pt-[160px] md:pt-[200px] pb-[32px] px-4 md:px-[15px] flex justify-center">
+    <section className="w-full bg-[#5025d1] text-white pt-[160px] md:pt-[200px] pb-[32px] px-4 md:px-[15px] flex justify-center">
       <div className="w-full max-w-[960px] flex flex-col gap-[24px]">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}

@@ -1,54 +1,26 @@
-# React + TypeScript + Vite
+# PetroHost Help & Blog Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Descrição
+A plataforma web pública, focada nos clientes e visitantes da PetroHost. Este portal atua como o **Centro de Suporte** e a casa do **Blog Institucional**. Desenvolvido com extrema fidelidade ao manual de identidade visual da empresa (branding), providenciando navegação estruturada, fluída e responsiva.
 
-Currently, two official plugins are available:
+## Tecnologias Principais
+- **React 18 + Vite**: Para um carregamento instantâneo do cliente e transições extremamente fluídas ("SPA feel").
+- **Tailwind CSS**: Estilização que aplica rigorosamente os design tokens institucionais (roxa `#5025d1`, azul escuro `#2f1c6a`).
+- **TanStack Query (React Query)**: Fetching otimizado da `admin-api` para carregar artigos do Help Center e posts do Blog na máxima velocidade.
+- **React Router DOM**: Gestão da árvore de rotas da aplicação (ex: `/help`, `/blog`, `/blog/:slug`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Características Principais
+- **Header e Footer em Paridade Absoluta**: Componentes globais estáticos reconstruídos minuciosamente de forma a ficarem 100% idênticos (pixel a pixel e na estrutura do HTML) à página de aterragem (landing page) oficial em produção.
+- **Páginas e Módulos Dedicados**: Segregação de código onde o ecossistema "Ajuda" (FAQs, artigos técnicos) não se cruza logicamente com o ecossistema de "Blogs" (Notícias da empresa, SEO).
+- **Micro-interações Modernas**: Elementos como *hover states*, setas suspensas (*dropdown chevrons*) em harmonia para uma navegação premium.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Como Executar
+1. Instalar dependências necessárias:
+   ```bash
+   npm install
+   ```
+2. Inicializar a interface:
+   ```bash
+   npm run dev
+   ```
+3. Aceda no browser e navegue até às rotas `/help` e `/blog`.

@@ -1,23 +1,49 @@
-
 import { useParams, Link } from 'react-router-dom';
-import { ARTICLES_BY_CATEGORY } from '../constants/articles';
+import { useHelpArticle, useHelpArticleFeedback } from '../queries/useHelpQueries';
 import { Header } from '../../../components/Header';
 import { Breadcrumb } from '../components/Breadcrumb';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { useEffect, useState } from 'react';
 
 export const Article = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // this is the slug
   
-  // Find article across all categories
-  let foundArticle: { id: string; title: string; readTime: string } | null = null;
-  let foundCategory: string | null = null;
-  
-  for (const [category, articles] of Object.entries(ARTICLES_BY_CATEGORY)) {
-    const article = articles.find(a => a.id === id);
-    if (article) {
-      foundArticle = article;
-      foundCategory = category;
-      break;
+  const { data: foundArticle, isLoading } = useHelpArticle(id || '');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'success'>('idle');
+  const feedbackMutation = useHelpArticleFeedback();
+
+  const handleFeedback = (isHelpful: boolean) => {
+    if (foundArticle) {
+      feedbackMutation.mutate({ slug: foundArticle.slug || foundArticle.id.toString(), is_helpful: isHelpful });
+      setFeedbackStatus('success');
     }
+  };
+
+  useEffect(() => {
+    if (foundArticle) {
+      document.title = `${foundArticle.title} | Ajuda PetroHost`;
+      
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute('content', foundArticle.excerpt || '');
+    }
+  }, [foundArticle]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col font-sans">
+        <Header />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-gray-500">A carregar artigo...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!foundArticle) {
@@ -27,15 +53,19 @@ export const Article = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-zinc-900">Artigo não encontrado</h2>
-            <Link to="/help" className="mt-4 text-[#5025d1] hover:underline block">Voltar à Base de Conhecimento</Link>
+            <Link to="/help" className="mt-4 text-[#331c74] hover:underline block">Voltar à Base de Conhecimento</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // Format category name for breadcrumb
-  const categoryName = foundCategory ? foundCategory.charAt(0).toUpperCase() + foundCategory.slice(1).replace('-', ' ') : 'Categoria';
+  const categoryName = foundArticle.category?.title || 'Categoria';
+  const categorySlug = foundArticle.category?.slug || '';
+  
+  // Calculate read time roughly (200 words per minute)
+  const wordCount = foundArticle.content ? foundArticle.content.split(/\s+/).length : 0;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200)) + ' min';
 
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col">
@@ -46,7 +76,7 @@ export const Article = () => {
         <Breadcrumb 
           items={[
             { label: 'Base de Conhecimento', path: '/help' }, 
-            { label: categoryName, path: `/help/category/${foundCategory}` },
+            { label: categoryName, path: `/help/category/${categorySlug}` },
             { label: foundArticle.title }
           ]} 
         />
@@ -61,56 +91,53 @@ export const Article = () => {
                 {foundArticle.title}
               </h1>
               <p className="text-sm text-[#737373] mt-2">
-                Atualizado há 15 dias • {foundArticle.readTime} de leitura
+                {new Date(foundArticle.updated_at).toLocaleDateString()} • {readTime} de leitura
               </p>
             </header>
 
-            <div className="prose prose-zinc max-w-none">
-              <p className="text-base font-normal text-[#737373] mb-4">
-                Este é um bloco de conteúdo de exemplo para o artigo "{foundArticle.title}". Num cenário real, este espaço seria preenchido com o conteúdo verdadeiro do artigo obtido do seu sistema ou base de dados.
-              </p>
-              
-              <h2 className="text-2xl font-bold text-black my-6">1. Primeiros Passos</h2>
-              <p className="text-base font-normal text-[#737373] mb-4">
-                Para começar, precisará de iniciar sessão na sua conta e aceder ao painel de controlo. Certifique-se de que tem as suas credenciais prontas.
-              </p>
-              
-              <ul className="list-disc pl-5 space-y-2 my-4 text-base font-normal text-[#737373]">
-                <li>Navegue para o painel principal.</li>
-                <li>Selecione o domínio que deseja gerir.</li>
-                <li>Clique na definição específica que pretende alterar.</li>
-              </ul>
-
-              <h2 className="text-2xl font-bold text-black my-6">2. Configuração e Ajustes</h2>
-              <p className="text-base font-normal text-[#737373] mb-4">
-                Assim que estiver na página de definições, pode ajustar as configurações conforme necessário. Lembre-se sempre de guardar as alterações antes de sair da página.
-              </p>
-              
-              <div className="my-8 bg-gray-100 rounded-lg h-64 w-full flex items-center justify-center border border-gray-200">
-                <span className="text-gray-400">Imagem de Exemplo</span>
-              </div>
-              
-              <p className="text-base font-normal text-[#737373] mb-4">
-                Se encontrar algum problema, por favor <a href="#" className="text-[#5025d1] underline">contacte a nossa equipa de suporte</a> para obter assistência adicional.
-              </p>
+            <div className="prose prose-zinc max-w-none prose-img:rounded-xl">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                {foundArticle.content}
+              </ReactMarkdown>
+            </div>
+            
+            <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between">
+               {feedbackStatus === 'idle' ? (
+                 <>
+                   <p className="text-sm text-gray-500 mb-4 sm:mb-0">Este artigo foi útil?</p>
+                   <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleFeedback(true)}
+                        disabled={feedbackMutation.isPending}
+                        className="px-4 py-2 bg-gray-50 hover:bg-[#5025d1] hover:text-white rounded text-sm font-medium transition-colors border border-gray-200 disabled:opacity-50"
+                      >
+                        👍 Sim
+                      </button>
+                      <button 
+                        onClick={() => handleFeedback(false)}
+                        disabled={feedbackMutation.isPending}
+                        className="px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded text-sm font-medium transition-colors border border-gray-200 disabled:opacity-50"
+                      >
+                        👎 Não
+                      </button>
+                   </div>
+                 </>
+               ) : (
+                 <p className="text-sm font-medium text-[#5025d1] bg-purple-50 px-4 py-2 rounded-md">Obrigado pelo seu feedback! A sua opinião ajuda-nos a melhorar.</p>
+               )}
             </div>
           </article>
 
           {/* Right Column: Table of Contents (Sticky) */}
           <aside className="hidden md:block w-[245px]">
             <div className="sticky top-28">
-              <h3 className="text-sm font-bold text-black mb-3 uppercase tracking-wider">Neste artigo</h3>
-              <nav className="flex flex-col border-l-2 border-[#f2f2f2]">
-                <a href="#" className="py-1.5 px-4 text-base font-normal text-black border-l-2 border-[#737373] -ml-[2px]">
-                  1. Primeiros Passos
-                </a>
-                <a href="#" className="py-1.5 px-4 text-base font-normal text-[#737373] hover:text-black transition-colors">
-                  2. Configuração e Ajustes
-                </a>
-                <a href="#" className="py-1.5 px-4 text-base font-normal text-[#737373] hover:text-black transition-colors">
-                  Contactar Suporte
-                </a>
-              </nav>
+              <h3 className="text-sm font-bold text-black mb-3 uppercase tracking-wider">Acerca deste artigo</h3>
+              <div className="text-sm text-gray-600 mb-4">
+                 Autor: {foundArticle.author?.name || 'Equipa Petrohost'}
+              </div>
+              <div className="text-sm text-gray-600">
+                 Visualizações: {foundArticle.views}
+              </div>
             </div>
           </aside>
           
